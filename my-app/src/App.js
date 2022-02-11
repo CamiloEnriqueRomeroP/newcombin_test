@@ -1,8 +1,8 @@
+import "./App.css";
 import React, { useRef } from "react";
-// import { List } from "./components/List";
+import axios from "axios";
 
 const App = () => {
-//   const KEY = "arrayApp.arrays";
 
   const firstName = useRef();
   const lastName = useRef();
@@ -11,52 +11,8 @@ const App = () => {
   const SSN2 = useRef();
   const SSN3 = useRef();
 
-//   const [arrays, setArrays] = useState([
-//     { id: 1, task: "Tarea 1", completed: false },
-//   ]);
+  const SSN = `${SSN1}+-+${SSN2}+-+${SSN3}`;
 
-//   const arrayTaskRef = useRef();
-
-    const SSN =`${SSN1}+-+${SSN2}+-+${SSN3}`;   
-
-// {´{this.state.SSN1}+"-"+{this.state.SSN2}+"-"+{this.state.SSN3}´};
-
-//   useEffect(() => {
-//     const storedArrays = JSON.parse(localStorage.getItem(KEY));
-//     if (storedArrays) {
-//       setArrays(storedArrays);
-//     }
-//     localStorage.setItem(KEY, JSON.stringify(arrays));
-//   }, []);
-
-//   useEffect(() => {
-//     localStorage.setItem(KEY, JSON.stringify(arrays));
-//   }, [arrays]);
-
-//   const toggleArray = (id) => {
-//     const newArrays = [...arrays];
-//     const array = newArrays.find((array) => array.id === id);
-//     arrays.completed = !array.completed;
-//     setArrays(newArrays);
-//   };
-
-//   const handleArrayAdd = () => {
-//     const fName = firstName.current.value;
-//     const lName = lastName.current.value;
-//     const ad = address.current.value;
-//     const snn = SSN.current.value;
-
-//     if (fName === "") return;
-//     if (lName === "") return;
-//     if (ad === "") return;
-//     if (snn === "") return;
-
-//     setArrays((prevArrays) => {
-//       return [...prevArrays, { fName, lName,ad }];
-//     });
-
-//     // firstName.current.value = null;
-//   };
 
   const reset = () => {
     firstName.current.value = "";
@@ -70,9 +26,8 @@ const App = () => {
 
   const [disable, setDisable] = React.useState(false);
 
-  //firstName.current.value.length < 1 || lastName.current.value.length < 1 || address.current.value.length < 1
-  const handleText = () => {
-    // handleArrayAdd ();
+   const handleText = () => {
+
     if (firstName.current.value.length < 1) {
       setDisable(true);
       alert("Complete the first name");
@@ -104,21 +59,35 @@ const App = () => {
     }
   }
 
+
+function addEntry ({ firstName, lastName, address, ssn}) {
+  axios.get("http://localhost:8081/auth",
+    {data: {username:'sarah', password:'connor'}}
+    // headers:{origin: 'localhost'}}
+  ).then( res => {
+    const token = res.data.token;
+    axios.post("http://localhost:8081/api/members",
+    {header: {authorization: `Bearer +${token}`},
+    data:{firstName: firstName, lastName: lastName, address: address,ssn:ssn }})
+  })
+}
+
+
   return (
-    <div>
-      <div>
+    <div className="Main">
+      <div className="entrada">
         First name: &nbsp;&nbsp;
         <input ref={firstName} type="text" placeholder="First name" />
       </div>
-      <div>
+      <div className="entrada">
         Last name: &nbsp;&nbsp;
         <input ref={lastName} type="text" placeholder="Last name" />
       </div>
-      <div>
+      <div className="entrada">
         Address: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <input ref={address} type="text" placeholder="Address" />
       </div>
-      <div>
+      <div className="entrada">
         SSN: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <input
           ref={SSN1}
@@ -146,22 +115,25 @@ const App = () => {
           onInput={maxLengthCheck}
           style={{ width: "60px" }}
         />
+      </div >
+      <div className="entrada">
+        <button onClick={reset}>Reset</button>
+        <button onClick={handleText} disabled={disable}>
+          Send
+        </button>
+        <button onClick={addEntry}>Add Entry</button>
       </div>
-      <button onClick={reset}>Reset</button>
-      <button onClick={handleText} disabled={disable}>
-        Send
-      </button>
-      <div>
-      {/* <Fragment>
-        <List arrays={arrays} toggleArray={toggleArray} />
-        <input ref={arrayTaskRef} type="text" placeholder="Nueva Tarea" />
-        <button onClick={handleArrayAdd}></button>
-        <div>
-          Te quedan {arrays.filter((array) => !array.completed).length} tareas
-          por terminar
-        </div>
-      </Fragment> */}
-      </div>
+      <div></div>
+      <table>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Address</th>
+          <th>SSN</th>
+        </tr>
+        <tr>
+        </tr>
+      </table>
     </div>
   );
 };
